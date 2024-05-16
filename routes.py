@@ -43,7 +43,7 @@ def get_happy_movies():
     else:
         return jsonify({"error": "No movies found"}), 404
     
-@app.route('/api/update_movies/cineplex', methods=['GET'])
+@app.route('/api/update_movies/cineplex', methods=['PUT'])
 def update_cineplex_movies():
     try:
         # Get data from the CineplexData.json file
@@ -66,7 +66,7 @@ def update_cineplex_movies():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@app.route('/api/update_movies/happy', methods=['GET'])
+@app.route('/api/update_movies/happy', methods=['PUT'])
 def update_happy_movies():
     try:
         # Get data from the HappyData.json file
@@ -86,5 +86,36 @@ def update_happy_movies():
             db.session.add(happy_movie)
         db.session.commit()
         return jsonify({"message": "Happy Movies updated successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/clear-cineplex', methods=['DELETE'])
+def clear_cineplex_movies():
+    try:
+        # check password
+        password = request.headers.get('X-Delete-Password')
+        print(password)
+        if password == "1234":  
+            # Delete all Cineplex Movies
+            CineplexMovies.query.delete()
+            db.session.commit()
+            return jsonify({"message": "Cineplex Movies deleted successfully"}), 200
+        else:
+            return jsonify({"error": "Invalid password"}), 401
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/clear-happy', methods=['DELETE'])
+def clear_happy_movies():
+    try:
+        # check password
+        password = request.headers.get('X-Delete-Password')
+        if password == "1234":
+            # Delete all Happy Movies
+            HappyMovies.query.delete()
+            db.session.commit()
+            return jsonify({"message": "Happy Movies deleted successfully"}), 200
+        else:
+            return jsonify({"error": "Invalid password"}), 401
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -1,0 +1,162 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "MovieJoy API",
+    "description": "API for managing movies from MovieJoy"
+    },
+    "paths": {
+        "/api/cineplex-movies": {
+            "get": {
+                "summary": "Get all movies from cineplex",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Movies",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Movie"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No movies found"
+                    }
+                }
+            } 
+        },
+        "/api/happy-movies": {
+            "get": {
+                "summary": "Get all movies from happy cinema",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Movies",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Movie"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No movies found"
+                    }
+                }
+            }
+        },
+        "/api/update_movies/cineplex" : {
+            "put": {
+                "summary": "Update movies from cineplex",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cineplex Movies updated successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/api/update_movies/happy" : {
+            "put": {
+                "summary": "Update movies from happy cinema",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Happy Movies updated successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            }
+        },
+        "/api/clear-cineplex": {
+            "delete": {
+                "summary": "Delete all records from cineplex",
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "name": "X-Delete-Password",
+                        "in": "header",
+                        "description": "Password for deleting",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses":{
+                    "200": {
+                        "description": "Everything deleted"
+                    },
+                    "401": {
+                        "description": "Incorect password"
+                    },
+                    "500":{
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/clear-happy": {
+            "delete": {
+                "summary": "Delete all records from happy cinema",
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "name": "X-Delete-Password",
+                        "in": "header",
+                        "description": "Password for deleting",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses":{
+                    "200": {
+                        "description": "Everything deleted"
+                    },
+                    "401": {
+                        "description": "Incorect password"
+                    },
+                    "500":{
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Movie": {
+            "type": "object",
+            "properties": {
+                "id_local": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "img": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
+
