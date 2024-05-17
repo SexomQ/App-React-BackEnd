@@ -27,6 +27,7 @@ Flask==2.2.5
 flask-babel==3.1.0
 Flask-Compress==1.14
 Flask-Gravatar==0.5.0
+Flask-JWT-Extended==4.6.0
 Flask-Login==0.6.2
 Flask-Mail==0.9.1
 Flask-Migrate==4.0.5

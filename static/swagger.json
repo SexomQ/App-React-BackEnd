@@ -6,6 +6,30 @@
     "description": "API for managing movies from MovieJoy"
     },
     "paths": {
+        "/api/login": {
+            "post": {
+                "summary": "Login",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "token": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong"
+                    }
+                }
+            }
+        },
         "/api/cineplex-movies": {
             "get": {
                 "summary": "Get all movies from cineplex",
@@ -91,6 +115,13 @@
                         "name": "X-Delete-Password",
                         "in": "header",
                         "description": "Password for deleting",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Insert token here",
                         "required": true,
                         "type": "string"
                     }

@@ -1,6 +1,7 @@
 from flask import Flask
 import os
 import dotenv
+from datetime import timedelta
 
 from models.movies_saved import CineplexMovies, HappyMovies
 from models.database import db
@@ -25,7 +26,11 @@ def create_app(db):
     app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///movies_saved.db'
-    # check previous commit
+
+    # JWT
+    app.config["JWT_SECRET_KEY"] = "test_key"  # test
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=1)
+
     db.init_app(app)
     return app
 

@@ -1,9 +1,29 @@
 # Import necessary modules
 from flask import request, jsonify
+from flask_cors import CORS
 import json
+
+from datetime import timedelta
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_refresh_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
+
 from models.database import db
 from models.movies_saved import CineplexMovies, HappyMovies
 from __main__ import app
+
+# JWT
+jwt = JWTManager(app)
+
+# Enable CORS
+CORS(app)
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    access_token = create_access_token(identity="test")
+    return jsonify(access_token=access_token), 200
 
 @app.route('/api/cineplex-movies', methods=['GET'])
 def get_cineplex_movies():
@@ -90,6 +110,7 @@ def update_happy_movies():
         return jsonify({"error": str(e)}), 500
     
 @app.route('/api/clear-cineplex', methods=['DELETE'])
+@jwt_required()
 def clear_cineplex_movies():
     try:
         # check password
@@ -106,6 +127,7 @@ def clear_cineplex_movies():
         return jsonify({"error": str(e)}), 500
     
 @app.route('/api/clear-happy', methods=['DELETE'])
+@jwt_required()
 def clear_happy_movies():
     try:
         # check password
