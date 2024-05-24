@@ -59,6 +59,24 @@
                         "description": "Insert token here",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number of the results to retrieve",
+                        "required": false,
+                        "type": "integer",
+                        "default": 1,
+                        "format": "int32"
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of results per page",
+                        "required": false,
+                        "type": "integer",
+                        "default": 4,
+                        "format": "int32"
                     }
                 ],
                 "responses": {
