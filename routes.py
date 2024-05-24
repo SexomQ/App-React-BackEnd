@@ -28,62 +28,61 @@ def login(user_type):
 @app.route('/api/movies/<string:cinema>', methods=['GET'])
 @jwt_required()
 def manipulate_movies(cinema):
-    if request.method == 'GET':
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 4, type=int)
-        
-        if cinema == 'cineplex':
-            # Get paginated Cineplex Movies from the database
-            movies_query = CineplexMovies.query
-            movies_pagination = movies_query.paginate(page, per_page, error_out=False)
-            movies = movies_pagination.items
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 4, type=int)
+    
+    if cinema == 'cineplex':
+        # Get paginated Cineplex Movies from the database
+        movies_query = CineplexMovies.query
+        movies_pagination = movies_query.paginate(page=page, per_page=per_page, error_out=False)
+        movies = movies_pagination.items
 
-            # Serialize the data for the response
-            if movies:
-                data = [
-                    {
-                        "id": movie.id_local,
-                        "title": movie.title,
-                        "category": movie.category,
-                        "img": movie.img,
-                        "url": movie.url
-                    } for movie in movies
-                ]
-                response = {
-                    "movies": data,
-                    "total": movies_pagination.total,
-                    "pages": movies_pagination.pages,
-                    "current_page": page
-                }
-                return jsonify(response), 200
-            else:
-                return jsonify({"error": "No movies found"}), 404
-        elif cinema == 'happy':
-            # Get paginated Happy Movies from the database
-            movies_query = HappyMovies.query
-            movies_pagination = movies_query.paginate(page, per_page, error_out=False)
-            movies = movies_pagination.items
+        # Serialize the data for the response
+        if movies:
+            data = [
+                {
+                    "id": movie.id_local,
+                    "title": movie.title,
+                    "category": movie.category,
+                    "img": movie.img,
+                    "url": movie.url
+                } for movie in movies
+            ]
+            response = {
+                "movies": data,
+                "total": movies_pagination.total,
+                "pages": movies_pagination.pages,
+                "current_page": page
+            }
+            return jsonify(response), 200
+        else:
+            return jsonify({"error": "No movies found"}), 404
+    elif cinema == 'happy':
+        # Get paginated Happy Movies from the database
+        movies_query = HappyMovies.query
+        movies_pagination = movies_query.paginate(page, per_page, error_out=False)
+        movies = movies_pagination.items
 
-            # Serialize the data for the response
-            if movies:
-                data = [
-                    {
-                        "id": movie.id_local,
-                        "title": movie.title,
-                        "category": movie.category,
-                        "img": movie.img,
-                        "url": movie.url
-                    } for movie in movies
-                ]
-                response = {
-                    "movies": data,
-                    "total": movies_pagination.total,
-                    "pages": movies_pagination.pages,
-                    "current_page": page
-                }
-                return jsonify(response), 200
-            else:
-                return jsonify({"error": "No movies found"}), 404
+        # Serialize the data for the response
+        if movies:
+            data = [
+                {
+                    "id": movie.id_local,
+                    "title": movie.title,
+                    "category": movie.category,
+                    "img": movie.img,
+                    "url": movie.url
+                } for movie in movies
+            ]
+            response = {
+                "movies": data,
+                "total": movies_pagination.total,
+                "pages": movies_pagination.pages,
+                "current_page": page
+            }
+            return jsonify(response), 200
+        else:
+            return jsonify({"error": "No movies found"}), 404
             
 
 @app.route('/api/movies/<string:cinema>', methods=['PUT'])
