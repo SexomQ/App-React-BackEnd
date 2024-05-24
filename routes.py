@@ -20,124 +20,160 @@ jwt = JWTManager(app)
 # Enable CORS
 CORS(app)
 
-@app.route('/api/login', methods=['POST'])
-def login():
-    access_token = create_access_token(identity="test")
+@app.route('/api/login/<string:user_type>', methods=['POST'])
+def login(user_type):
+    access_token = create_access_token(identity=user_type)
     return jsonify(access_token=access_token), 200
 
-@app.route('/api/cineplex-movies', methods=['GET'])
-def get_cineplex_movies():
-    # Get all Cineplex Movies from the database
-    movies = CineplexMovies.query.all()
-    # Serialize the data for the response
-    if movies is not None:
-        data = []
-        for movie in movies:
-            data.append({
-                "id": movie.id_local,
-                "title": movie.title,
-                "category": movie.category,
-                "img": movie.img,
-                "url": movie.url
-            })
-        return jsonify(data), 200
-    else:
-        return jsonify({"error": "No movies found"}), 404
-    
-@app.route('/api/happy-movies', methods=['GET'])
-def get_happy_movies():
-    # Get all Happy Movies from the database
-    movies = HappyMovies.query.all()
-    # Serialize the data for the response
-    if movies is not None:
-        data = []
-        for movie in movies:
-            data.append({
-                "id": movie.id_local,
-                "title": movie.title,
-                "category": movie.category,
-                "img": movie.img,
-                "url": movie.url
-            })
-        return jsonify(data), 200
-    else:
-        return jsonify({"error": "No movies found"}), 404
-    
-@app.route('/api/update_movies/cineplex', methods=['PUT'])
-def update_cineplex_movies():
-    try:
-        # Get data from the CineplexData.json file
-        with open('static/CineplexData.json', 'r') as file:
-            data = json.load(file)
-        # Delete all existing Cineplex Movies
-        CineplexMovies.query.delete()
-        # Create new Cineplex Movies
-        for movie in data:
-            cineplex_movie = CineplexMovies(
-                id_local=movie['id'],
-                title=movie['title'],
-                category=movie['category'],
-                img=movie['img'],
-                url=movie['url']
-            )
-            db.session.add(cineplex_movie)
-        db.session.commit()
-        return jsonify({"message": "Cineplex Movies updated successfully"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/api/update_movies/happy', methods=['PUT'])
-def update_happy_movies():
-    try:
-        # Get data from the HappyData.json file
-        with open('static/HappyData.json', 'r') as file:
-            data = json.load(file)
-        # Delete all existing Happy Movies
-        HappyMovies.query.delete()
-        # Create new Happy Movies
-        for movie in data:
-            happy_movie = HappyMovies(
-                id_local=movie['id'],
-                title=movie['title'],
-                category=movie['category'],
-                img=movie['img'],
-                url=movie['url']
-            )
-            db.session.add(happy_movie)
-        db.session.commit()
-        return jsonify({"message": "Happy Movies updated successfully"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/api/clear-cineplex', methods=['DELETE'])
+@app.route('/api/movies/<string:cinema>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
-def clear_cineplex_movies():
-    try:
-        # check password
-        password = request.headers.get('X-Delete-Password')
-        print(password)
-        if password == "1234":  
-            # Delete all Cineplex Movies
-            CineplexMovies.query.delete()
-            db.session.commit()
-            return jsonify({"message": "Cineplex Movies deleted successfully"}), 200
-        else:
-            return jsonify({"error": "Invalid password"}), 401
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+def manipulate_movies(cinema):
+    if request.method == 'GET':
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 4, type=int)
+        
+        if cinema == 'cineplex':
+            # Get paginated Cineplex Movies from the database
+            movies_query = CineplexMovies.query
+            movies_pagination = movies_query.paginate(page, per_page, error_out=False)
+            movies = movies_pagination.items
+
+            # Serialize the data for the response
+            if movies:
+                data = [
+                    {
+                        "id": movie.id_local,
+                        "title": movie.title,
+                        "category": movie.category,
+                        "img": movie.img,
+                        "url": movie.url
+                    } for movie in movies
+                ]
+                response = {
+                    "movies": data,
+                    "total": movies_pagination.total,
+                    "pages": movies_pagination.pages,
+                    "current_page": page
+                }
+                return jsonify(response), 200
+            else:
+                return jsonify({"error": "No movies found"}), 404
+        elif cinema == 'happy':
+            # Get paginated Happy Movies from the database
+            movies_query = HappyMovies.query
+            movies_pagination = movies_query.paginate(page, per_page, error_out=False)
+            movies = movies_pagination.items
+
+            # Serialize the data for the response
+            if movies:
+                data = [
+                    {
+                        "id": movie.id_local,
+                        "title": movie.title,
+                        "category": movie.category,
+                        "img": movie.img,
+                        "url": movie.url
+                    } for movie in movies
+                ]
+                response = {
+                    "movies": data,
+                    "total": movies_pagination.total,
+                    "pages": movies_pagination.pages,
+                    "current_page": page
+                }
+                return jsonify(response), 200
+            else:
+                return jsonify({"error": "No movies found"}), 404
     
-@app.route('/api/clear-happy', methods=['DELETE'])
-@jwt_required()
-def clear_happy_movies():
-    try:
-        # check password
-        password = request.headers.get('X-Delete-Password')
-        if password == "1234":
-            # Delete all Happy Movies
-            HappyMovies.query.delete()
-            db.session.commit()
-            return jsonify({"message": "Happy Movies deleted successfully"}), 200
-        else:
-            return jsonify({"error": "Invalid password"}), 401
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    elif request.method == 'PUT':
+        if cinema == 'cineplex':
+            try:
+                # Get data from the CineplexData.json file
+                with open('static/CineplexData.json', 'r') as file:
+                    data = json.load(file)
+                # Delete all existing Cineplex Movies
+                CineplexMovies.query.delete()
+                # Create new Cineplex Movies
+                for movie in data:
+                    cineplex_movie = CineplexMovies(
+                        id_local=movie['id'],
+                        title=movie['title'],
+                        category=movie['category'],
+                        img=movie['img'],
+                        url=movie['url']
+                    )
+                    db.session.add(cineplex_movie)
+                db.session.commit()
+                return jsonify({"message": "Cineplex Movies updated successfully"}), 200
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+        elif cinema == 'happy':
+            try:
+                # Get data from the HappyData.json file
+                with open('static/HappyData.json', 'r') as file:
+                    data = json.load(file)
+                # Delete all existing Happy Movies
+                HappyMovies.query.delete()
+                # Create new Happy Movies
+                for movie in data:
+                    happy_movie = HappyMovies(
+                        id_local=movie['id'],
+                        title=movie['title'],
+                        category=movie['category'],
+                        img=movie['img'],
+                        url=movie['url']
+                    )
+                    db.session.add(happy_movie)
+                db.session.commit()
+                return jsonify({"message": "Happy Movies updated successfully"}), 200
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+            
+    elif request.method == 'DELETE':
+        if cinema == 'cineplex':
+            try:
+                # check password
+                password = request.headers.get('X-Delete-Password')
+                if password == "1234" and get_jwt_identity() == 'admin':
+                    # Delete all Cineplex Movies
+                    CineplexMovies.query.delete()
+                    db.session.commit()
+                    return jsonify({"message": "Cineplex Movies deleted successfully"}), 200
+                else:
+                    return jsonify({"error": "Invalid password or you are anothorized"}), 401
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+        elif cinema == 'happy':
+            try:
+                # check password
+                password = request.headers.get('X-Delete-Password')
+                if password == "1234" and get_jwt_identity() == 'admin':
+                    # Delete all Happy Movies
+                    HappyMovies.query.delete()
+                    db.session.commit()
+                    return jsonify({"message": "Happy Movies deleted successfully"}), 200
+                else:
+                    return jsonify({"error": "Invalid password or you are anothorized"}), 401
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+
+    
+# @app.route('/api/happy-movies', methods=['GET'])
+# def get_happy_movies():
+    
+    
+# @app.route('/api/update_movies/cineplex', methods=['PUT'])
+# def update_cineplex_movies():
+    
+    
+# @app.route('/api/update_movies/happy', methods=['PUT'])
+# def update_happy_movies():
+    
+# @app.route('/api/clear-cineplex', methods=['DELETE'])
+# @jwt_required()
+# def clear_cineplex_movies():
+    
+# @app.route('/api/clear-happy', methods=['DELETE'])
+# @jwt_required()
+# def clear_happy_movies():

@@ -6,11 +6,20 @@
     "description": "API for managing movies from MovieJoy"
     },
     "paths": {
-        "/api/login": {
+        "/api/login/{type}": {
             "post": {
                 "summary": "Login",
                 "produces": [
                     "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "description": "Type of login",
+                        "required": true,
+                        "type": "string"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -30,91 +39,17 @@
                 }
             }
         },
-        "/api/cineplex-movies": {
+        "/api/movies/{cinema}": {
             "get": {
-                "summary": "Get all movies from cineplex",
+                "summary": "Get all movies from a cinema",
                 "produces": [
                     "application/json"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "Movies",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Movie"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "No movies found"
-                    }
-                }
-            } 
-        },
-        "/api/happy-movies": {
-            "get": {
-                "summary": "Get all movies from happy cinema",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Movies",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Movie"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "No movies found"
-                    }
-                }
-            }
-        },
-        "/api/update_movies/cineplex" : {
-            "put": {
-                "summary": "Update movies from cineplex",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Cineplex Movies updated successfully"
-                    },
-                    "500": {
-                        "description": "Unexpected error"
-                    }
-                }
-            }
-        },
-        "/api/update_movies/happy" : {
-            "put": {
-                "summary": "Update movies from happy cinema",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Happy Movies updated successfully"
-                    },
-                    "500": {
-                        "description": "Unexpected error"
-                    }
-                }
-            }
-        },
-        "/api/clear-cineplex": {
-            "delete": {
-                "summary": "Delete all records from cineplex",
-                "produces": ["application/json"],
                 "parameters": [
                     {
-                        "name": "X-Delete-Password",
-                        "in": "header",
-                        "description": "Password for deleting",
+                        "name": "cinema",
+                        "in": "path",
+                        "description": "Cinema name",
                         "required": true,
                         "type": "string"
                     },
@@ -126,28 +61,73 @@
                         "type": "string"
                     }
                 ],
-                "responses":{
+                "responses": {
                     "200": {
-                        "description": "Everything deleted"
+                        "description": "Movies",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Movie"
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Incorect password"
-                    },
-                    "500":{
-                        "description": "Invalid input"
+                    "404": {
+                        "description": "No movies found"
                     }
                 }
-            }
-        },
-        "/api/clear-happy": {
+            },
+            "put": {
+                "summary": "Update movies from a cinema",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "cinema",
+                        "in": "path",
+                        "description": "Cinema name",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Insert token here",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Movies updated successfully"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                }
+            },
             "delete": {
-                "summary": "Delete all records from happy cinema",
+                "summary": "Delete all records from a cinema",
                 "produces": ["application/json"],
                 "parameters": [
+                    {
+                        "name": "cinema",
+                        "in": "path",
+                        "description": "Cinema name",
+                        "required": true,
+                        "type": "string"
+                    },
                     {
                         "name": "X-Delete-Password",
                         "in": "header",
                         "description": "Password for deleting",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "Insert token here",
                         "required": true,
                         "type": "string"
                     }
